@@ -32,8 +32,18 @@ class WatsonAssistantService:
     def send_message(self, session_id: str, text: str) -> list[str]:
         """
         Envia uma mensagem de texto do usuário e retorna a lista de
-        respostas em texto geradas pelo assistant (um dialog node pode
-        gerar mais de uma "bolha" de resposta).
+        respostas em texto geradas pelo assistant.
+
+        O Watson pode devolver blocos de tipos diferentes em
+        output.generic, dependendo de como o step foi configurado:
+        - "text": uma mensagem de texto simples (ex: o resumo final)
+        - "option": uma pergunta com uma lista de opções pra escolher
+          (é o que a maioria dos nossos steps usa, via "Define customer
+          response" > Options)
+
+        Como nosso frontend ainda é um chat simples de texto, a gente
+        converte as opções em texto legível (título + lista numerada)
+        em vez de simplesmente ignorá-las.
         """
         response = self.assistant.message(
             assistant_id=self.assistant_id,
@@ -45,11 +55,24 @@ class WatsonAssistantService:
         ).get_result()
 
         generic_items = response.get("output", {}).get("generic", [])
-        replies = [
-            item.get("text")
-            for item in generic_items
-            if item.get("response_type") == "text" and item.get("text")
-        ]
+        replies = []
+
+        for item in generic_items:
+            response_type = item.get("response_type")
+
+            if response_type == "text" and item.get("text"):
+                replies.append(item["text"])
+
+            elif response_type == "option":
+                title = item.get("title", "")
+                options = item.get("options", [])
+                option_lines = [
+                    f"- {opt.get('label')}" for opt in options if opt.get("label")
+                ]
+                option_block = "\n".join([title] + option_lines) if title else "\n".join(option_lines)
+                if option_block:
+                    replies.append(option_block)
+
         return replies
 
     def delete_session(self, session_id: str) -> None:
