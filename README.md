@@ -61,6 +61,15 @@ A inteligência conversacional foi construída utilizando o modelo de **Actions*
 
 A exportação oficial da Action configurada está disponível no repositório em `watson/Assistente-Cardiológico-Conversacional-action.json`.
 
+## Interface (React Native)
+
+App mobile construído com React Native + Expo, responsável pela interação por chat com o assistente.
+
+- Tecnologias
+- React Native
+- Expo / Expo Router
+- TypeScript
+
 ---
 
 ## Estrutura do Projeto
@@ -78,14 +87,20 @@ A exportação oficial da Action configurada está disponível no repositório e
 │   │   └── __init__.py               # Factory da aplicação Flask com suporte a CORS
 │   ├── config.py                     # Validação e carregamento de variáveis de ambiente (.env)
 │   └── run.py                        # Ponto de entrada para execução da API
+├── frontend/
+│   ├── app/
+│   │   ├── _layout.tsx               # Layout raiz (navegação Expo Router)
+│   │   └── index.tsx                 # Tela principal da interface do chat
+│   ├── app.json                      # Configurações do app Expo
+│   └── package.json                  # Dependências do frontend
 ├── docs/
 │   └── relatorio_parte1.txt          # Relatório técnico completo da Parte 1
 ├── watson/
 │   └── Assistente-Cardiológico-Conversacional-action.json # Exportação oficial da Action do Watson
-├── .env.exemple                      # Modelo das variáveis de ambiente necessárias
+├── .env.example                      # Modelo das variáveis de ambiente necessárias
 ├── .gitignore                        # Regras de exclusão de arquivos temporários/segredos
-├── requirements.txt                  # Dependências do projeto (Flask, ibm-watson, python-dotenv, etc.)
-└── README.md                         # Documentação do repositório
+├── requirements.txt                  # Dependências do backend (Flask, ibm-watson, etc.)
+└── README.md                         # Documentação principal do repositório
 ```
 
 ---
@@ -151,6 +166,26 @@ python run.py
 ```
 O servidor estará acessível em `http://localhost:5000`.
 
+### Como executar o Frontend
+```
+cd frontend
+```
+```
+npm install
+```
+```
+npx expo start
+```
+Escaneie o QR code exibido no terminal com o app **Expo Go** (disponível na Play Store / App Store).
+ 
+> **Importante:** no arquivo `frontend/app/index.tsx`, a constante `API_BASE_URL` precisa apontar para o endereço IP local do computador rodando o backend (ex: `http://192.168.0.10:5000`), não para `localhost` — o celular é um dispositivo diferente na rede, então precisa do IP real da máquina que está rodando o Flask.
+ 
+### Funcionalidades da interface
+ 
+- Abertura automática de sessão com o assistente ao iniciar o app
+- Envio de mensagens em tempo real, com indicador de "digitando…"
+- Diferenciação visual entre mensagens do usuário e do assistente
+- Destaque automático (cor de alerta) quando a resposta do assistente indica uma emergência
 ---
 
 ## Relatório Técnico
