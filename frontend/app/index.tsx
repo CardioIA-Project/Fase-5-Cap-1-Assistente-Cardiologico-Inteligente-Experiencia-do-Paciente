@@ -11,7 +11,7 @@ import {
     SafeAreaView,
 } from "react-native";
 
-const API_BASE_URL = "http://192.168.15.4:5000";
+const API_BASE_URL = "http://SEU_IP:5000";
 
 type Message = {
     id: string;
