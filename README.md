@@ -63,6 +63,27 @@ A exportação oficial da Action configurada está disponível no repositório e
 
 ---
 
+## Extração Clínica e IA Generativa — Ir Além 1
+
+A pasta [`ir_alem_1_extracao_clinica/`](file:///c:/Users/vitor/OneDrive/Documentos/GitHub/Fase-5-Cap-1-Assistente-Cardiologico-Inteligente-Experiencia-do-Paciente/ir_alem_1_extracao_clinica) contém a solução da atividade complementar **Ir Além 1**, que expande o assistente para interpretar e extrair informações de relatos clínicos não estruturados em formato JSON utilizando técnicas avançadas de engenharia de prompt.
+
+### Conteúdo da Pasta
+
+- **[`ir_alem_1_extracao_clinica.ipynb`](file:///c:/Users/vitor/OneDrive/Documentos/GitHub/Fase-5-Cap-1-Assistente-Cardiologico-Inteligente-Experiencia-do-Paciente/ir_alem_1_extracao_clinica/ir_alem_1_extracao_clinica.ipynb):** Jupyter Notebook interativo contendo todo o fluxo de extração, experimentos comparativos e validação de schema.
+- **[`ir_alem_1.pdf`](file:///c:/Users/vitor/OneDrive/Documentos/GitHub/Fase-5-Cap-1-Assistente-Cardiologico-Inteligente-Experiencia-do-Paciente/ir_alem_1_extracao_clinica/ir_alem_1.pdf):** Documento com as diretrizes e enunciado da atividade.
+
+### Abordagem Técnica e Destaques
+
+- **Chain of Thought (CoT):** Em vez de solicitar diretamente se o paciente apresenta risco (comportamento "caixa-preta"), o prompt força o modelo a seguir passos explícitos de raciocínio:
+  1. Identificação individualizada dos sintomas descritos.
+  2. Comparação de cada sintoma com os critérios de alerta cardiológico (*dor no peito, falta de ar, dor no braço, suor frio*).
+  3. Classificação final (booleana) acompanhada do resumo narrativo.
+- **Validação de Schema com Pydantic:** Integração de validação programática da resposta em JSON com política de retry automático em caso de parsing inválido.
+- **Execução via Ollama (`llama3.1:8b`):** Uso de modelo de linguagem local, demonstrando a portabilidade dos conceitos de prompting independentemente da plataforma ou LLM utilizada.
+- **Análise Comparativa:** Comparação prática entre a inferência simples (*sem CoT*) e a inferência estruturada com justificativa (*com CoT*), ressaltando os benefícios em termos de transparência e auditabilidade clínica.
+
+---
+
 ## Estrutura do Projeto
 
 ```text
@@ -80,6 +101,9 @@ A exportação oficial da Action configurada está disponível no repositório e
 │   └── run.py                        # Ponto de entrada para execução da API
 ├── docs/
 │   └── relatorio_parte1.txt          # Relatório técnico completo da Parte 1
+├── ir_alem_1_extracao_clinica/
+│   ├── ir_alem_1.pdf                 # Enunciado da atividade Ir Além 1
+│   └── ir_alem_1_extracao_clinica.ipynb # Notebook com extração via CoT e LLM local (Ollama)
 ├── watson/
 │   └── Assistente-Cardiológico-Conversacional-action.json # Exportação oficial da Action do Watson
 ├── .env.exemple                      # Modelo das variáveis de ambiente necessárias
@@ -114,8 +138,16 @@ A API Flask fornece os seguintes recursos na rota `/api`:
 git clone https://github.com/Vitor985-hub/Fase-5-Cap-1-Assistente-Cardiologico-Inteligente-Experiencia-do-Paciente.git
 cd Fase-5-Cap-1-Assistente-Cardiologico-Inteligente-Experiencia-do-Paciente
 ```
+### 3. watsonx Assistant (NLU)
+ 1. Crie uma instância do watsonx Assistant no plano Lite, pelo catálogo do IBM Cloud.
+ 2. Dentro do Assistant criado, vá em Global Settings (ícone de engrenagem) → aba Upload/Download → Upload e importe o arquivo .json que está na pasta watson/ deste repositório. Isso recria a action "Relatar sintoma" com todos os steps, condições e variáveis já configurados.
+ 3. Abra a action importada e clique em Preview para confirmar que o fluxo está funcionando (teste com "estou sentindo dor no peito" e com algo não-crítico, como "sinto cansaço").
+ 4. Pegue as credenciais necessárias para o backend, na aba Environments → ambiente Draft → API details:
+    - Service URL
+    - Environment ID (usado como WATSON_ASSISTANT_ID no backend — é o ID do ambiente, não o nome do assistant)
+    - API key, em Service credentials, na página da instância no IBM Cloud (fora do builder do Assistant)
 
-### 3. Configurar Ambiente Virtual
+### 4. Configurar Ambiente Virtual
 ```bash
 # Criação do venv
 python -m venv venv
@@ -127,12 +159,12 @@ python -m venv venv
 source venv/bin/activate
 ```
 
-### 4. Instalar Dependências
+### 5. Instalar Dependências
 ```bash
 pip install -r requirements.txt
 ```
 
-### 5. Configurar Variáveis de Ambiente (`.env`)
+### 6. Configurar Variáveis de Ambiente (`.env`)
 Crie um arquivo `.env` na raiz do projeto baseado no `.env.exemple`:
 ```ini
 WATSON_ASSISTANT_API_KEY=sua_api_key_aqui
@@ -144,12 +176,21 @@ FLASK_PORT=5000
 FLASK_DEBUG=True
 ```
 
-### 6. Executar o Backend
+### 7. Executar o Backend
 ```bash
 cd backend
 python run.py
 ```
 O servidor estará acessível em `http://localhost:5000`.
+
+### 8. Executar o App Mobile
+
+```bash
+cd frontend
+npm install
+npx expo start
+```
+Escaneie o QR code com o app **Expo Go** (Android/iOS). Importante: no arquivo `frontend/app/index.tsx`, a constante `API_BASE_URL` precisa apontar para o IP local do seu computador (ex: `http://192.168.0.10:5000`), não `localhost` — o celular é outro dispositivo na rede.
 
 ---
 

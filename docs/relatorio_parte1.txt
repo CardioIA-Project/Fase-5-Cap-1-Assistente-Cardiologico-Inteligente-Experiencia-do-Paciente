@@ -1,0 +1,96 @@
+Assistente Cardiológico Conversacional
+
+Relatório Técnico — Parte 1: Assistente Conversacional com NLP
+
+Curso de Tecnologia em Inteligência Artificial — FIAP | Disciplina: PCV
+
+1. Objetivo
+
+Este relatório descreve o funcionamento do assistente conversacional
+desenvolvido para realizar uma triagem inicial de sintomas
+cardiológicos, utilizando a plataforma IBM watsonx Assistant integrada a
+um backend em Flask. O objetivo do assistente não é diagnosticar, mas
+coletar informações estruturadas sobre o sintoma relatado pelo usuário e
+orientá-lo adequadamente — seja recomendando avaliação médica de rotina,
+seja sinalizando uma possível emergência.
+
+2. Arquitetura da Solução
+
+A solução segue uma arquitetura em três camadas: Interface do usuário →
+Backend Flask → watsonx Assistant (API v2). O backend expõe dois
+endpoints principais: /api/session, que abre uma sessão de conversa no
+Watson, e /api/message, que repassa o texto do usuário para o Watson e
+retorna a resposta. Essa camada intermediária isola as credenciais de
+acesso (API key e IDs) e converte o formato de resposta do Watson — que
+pode incluir blocos de texto simples ("text") ou blocos de múltipla
+escolha ("option") — em uma lista de mensagens de texto legíveis para o
+cliente.
+
+3. Modelagem do Assistente
+
+A modelagem foi feita através do construtor "Actions" do watsonx
+Assistant, que consolida conceitualmente os elementos de intents,
+entities e dialog nodes utilizados na abordagem clássica de Dialog Skill
+em uma única estrutura por ação. Cada Action é treinada com um conjunto
+de frases de exemplo (equivalente aos intents) e organizada em uma
+sequência de Steps (equivalentes aos dialog nodes), que podem coletar
+respostas estruturadas do usuário através do tipo "Options" (equivalente
+a uma entidade customizada com valores enumerados).
+
+Foi criada a action "Relatar sintoma", treinada com 10 frases de exemplo
+cobrindo diferentes formas de relatar sintomas cardíacos, como "Estou
+sentindo dor no peito" e "Meu coração está acelerado".
+
+4. Fluxo Conversacional
+
+-   Step 1 — Pergunta qual sintoma o usuário está sentindo, capturando a
+    resposta entre 8 opções (dor no peito, falta de ar, palpitação,
+    tontura, cansaço, inchaço nas pernas, dor no braço, suor frio).
+
+-   Step 2 — Verifica automaticamente, por condição, se o sintoma
+    relatado é um sinal de alerta (dor no peito, falta de ar, dor no
+    braço ou suor frio). Em caso positivo, o fluxo é interrompido com
+    uma orientação de emergência (ligar para o SAMU — 192 — ou procurar
+    um pronto-socorro), encerrando a ação.
+
+-   Step 3 — Executado apenas quando o sintoma não é crítico (condição
+    inversa à do Step 2): pergunta a severidade percebida (leve,
+    moderada ou intensa).
+
+-   Step 4 — Pergunta há quanto tempo o sintoma está presente (minutos,
+    horas, dias ou semanas).
+
+-   Step 5 — Pergunta sobre fatores de risco associados (hipertensão,
+    diabetes, colesterol alto, tabagismo, obesidade, sedentarismo,
+    histórico familiar), capturados como texto livre por permitirem
+    múltiplas respostas simultâneas.
+
+-   Step 6 — Apresenta um resumo final, reconstruindo a mensagem
+    dinamicamente a partir das variáveis de sessão preenchidas nos steps
+    anteriores (sintoma, severidade e duração), e recomenda a busca por
+    avaliação com um cardiologista.
+
+5. Tratamento de Exceções e Casos de Emergência
+
+A decisão de arquitetura mais relevante do fluxo é a bifurcação
+condicional entre os Steps 2 e 3: em vez de coletar todas as informações
+antes de avaliar a gravidade, o assistente verifica a gravidade do
+sintoma imediatamente após identificá-lo. Essa escolha reflete uma
+preocupação de responsabilidade no contexto de saúde — perguntas
+adicionais de triagem não devem atrasar uma orientação de emergência
+quando os sinais relatados já são suficientes para justificá-la.
+
+Para mensagens que não correspondem a nenhuma frase de treinamento
+reconhecida, o comportamento padrão (fallback) do watsonx Assistant
+solicita que o usuário reformule a pergunta.
+
+6. Considerações Finais
+
+O protótipo demonstra a viabilidade de um fluxo de triagem
+conversacional estruturado, com tratamento diferenciado para sinais de
+alerta, utilizando uma ferramenta de NLP de baixo código (watsonx
+Assistant) integrada a um backend Python via API REST. Melhorias futuras
+incluem a captura estruturada de múltiplos fatores de risco (atualmente
+coletados como texto livre) e a expansão do fluxo para outras ações
+conversacionais, como saudação personalizada e esclarecimento de dúvidas
+gerais sobre saúde cardíaca.
