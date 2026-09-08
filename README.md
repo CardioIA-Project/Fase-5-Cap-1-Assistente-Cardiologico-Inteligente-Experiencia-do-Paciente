@@ -99,6 +99,12 @@ A pasta [`ir_alem_1_extracao_clinica/`](file:///c:/Users/vitor/OneDrive/Document
 │   │   └── __init__.py               # Factory da aplicação Flask com suporte a CORS
 │   ├── config.py                     # Validação e carregamento de variáveis de ambiente (.env)
 │   └── run.py                        # Ponto de entrada para execução da API
+├── frontend/
+│   ├── app/
+│   │   ├── _layout.tsx               # Layout raiz (navegação Expo Router)
+│   │   └── index.tsx                 # Tela principal da interface do chat
+│   ├── app.json                      # Configurações do app Expo
+│   └── package.json                  # Dependências do frontend
 ├── docs/
 │   └── relatorio_parte1.txt          # Relatório técnico completo da Parte 1
 ├── ir_alem_1_extracao_clinica/
@@ -106,10 +112,10 @@ A pasta [`ir_alem_1_extracao_clinica/`](file:///c:/Users/vitor/OneDrive/Document
 │   └── ir_alem_1_extracao_clinica.ipynb # Notebook com extração via CoT e LLM local (Ollama)
 ├── watson/
 │   └── Assistente-Cardiológico-Conversacional-action.json # Exportação oficial da Action do Watson
-├── .env.exemple                      # Modelo das variáveis de ambiente necessárias
+├── .env.example                      # Modelo das variáveis de ambiente necessárias
 ├── .gitignore                        # Regras de exclusão de arquivos temporários/segredos
-├── requirements.txt                  # Dependências do projeto (Flask, ibm-watson, python-dotenv, etc.)
-└── README.md                         # Documentação do repositório
+├── requirements.txt                  # Dependências do backend (Flask, ibm-watson, etc.)
+└── README.md                         # Documentação principal do repositório
 ```
 
 ---
