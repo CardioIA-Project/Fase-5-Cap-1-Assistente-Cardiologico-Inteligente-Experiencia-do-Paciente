@@ -65,15 +65,13 @@ A exportação oficial da Action configurada está disponível no repositório e
 
 ## Extração Clínica e IA Generativa — Ir Além 1
 
-A pasta [`ir_alem_1_extracao_clinica/`](file:///c:/Users/vitor/OneDrive/Documentos/GitHub/Fase-5-Cap-1-Assistente-Cardiologico-Inteligente-Experiencia-do-Paciente/ir_alem_1_extracao_clinica) contém a solução da atividade complementar **Ir Além 1**, que expande o assistente para interpretar e extrair informações de relatos clínicos não estruturados em formato JSON utilizando técnicas avançadas de engenharia de prompt.
+A pasta [`ir_alem_1/`](ir_alem_1) contém a solução da atividade complementar **Ir Além 1**, que expande o assistente para interpretar e extrair informações de relatos clínicos não estruturados em formato JSON utilizando técnicas avançadas de engenharia de prompt.
 
-### Conteúdo da Pasta
-
-- **[`ir_alem_1_extracao_clinica.ipynb`](file:///c:/Users/vitor/OneDrive/Documentos/GitHub/Fase-5-Cap-1-Assistente-Cardiologico-Inteligente-Experiencia-do-Paciente/ir_alem_1_extracao_clinica/ir_alem_1_extracao_clinica.ipynb):** Jupyter Notebook interativo contendo todo o fluxo de extração, experimentos comparativos e validação de schema.
-- **[`ir_alem_1.pdf`](file:///c:/Users/vitor/OneDrive/Documentos/GitHub/Fase-5-Cap-1-Assistente-Cardiologico-Inteligente-Experiencia-do-Paciente/ir_alem_1_extracao_clinica/ir_alem_1.pdf):** Documento com as diretrizes e enunciado da atividade.
+### Conteúdo do Módulo
+- **[`ir_alem_1/ir_alem_1_extracao_clinica.ipynb`](ir_alem_1/ir_alem_1_extracao_clinica.ipynb):** Jupyter Notebook interativo contendo todo o fluxo de extração, experimentos comparativos e validação de schema.
+- **[`ir_alem_1/ir_alem_1.pdf`](ir_alem_1/ir_alem_1.pdf):** Relatório técnico detalhado com fundamentação do Chain of Thought, justificativa da troca para Ollama/llama3.1:8b, análise comparativa dos casos clínicos e conclusões.
 
 ### Abordagem Técnica e Destaques
-
 - **Chain of Thought (CoT):** Em vez de solicitar diretamente se o paciente apresenta risco (comportamento "caixa-preta"), o prompt força o modelo a seguir passos explícitos de raciocínio:
   1. Identificação individualizada dos sintomas descritos.
   2. Comparação de cada sintoma com os critérios de alerta cardiológico (*dor no peito, falta de ar, dor no braço, suor frio*).
@@ -81,6 +79,29 @@ A pasta [`ir_alem_1_extracao_clinica/`](file:///c:/Users/vitor/OneDrive/Document
 - **Validação de Schema com Pydantic:** Integração de validação programática da resposta em JSON com política de retry automático em caso de parsing inválido.
 - **Execução via Ollama (`llama3.1:8b`):** Uso de modelo de linguagem local, demonstrando a portabilidade dos conceitos de prompting independentemente da plataforma ou LLM utilizada.
 - **Análise Comparativa:** Comparação prática entre a inferência simples (*sem CoT*) e a inferência estruturada com justificativa (*com CoT*), ressaltando os benefícios em termos de transparência e auditabilidade clínica.
+
+---
+
+## Automação Inteligente com RPA, IA e Dados Híbridos — Ir Além 2
+
+A pasta [`ir_alem_2/`](ir_alem_2) contém a solução da atividade complementar **Ir Além 2**, expandindo o ecossistema com um robô de Automação Robótica de Processos (RPA) integrado a técnicas de IA e dados híbridos (relacional + não relacional). O robô monitora continuamente pacientes simulados, detecta anomalias clínicas multivariadas e registra eventos auditáveis com rastreabilidade total.
+
+### Conteúdo do Módulo
+- **Robô de Automação (`ir_alem_2/src/robo_monitoramento.py`):** Script em Python que executa ciclos periódicos (ou sob demanda via `--once`), lendo dados pendentes, executando a inferência das IAs e persistindo decisões.
+- **Banco Relacional (`ir_alem_2/db/schema_sqlite.sql`):** SQLite utilizado como fonte de verdade estruturada para cadastro de pacientes e histórico de sinais vitais (*pressão arterial sistólica/diastólica, frequência cardíaca, adesão ao tratamento*), com colunas de controle transacional ACID (`processado_robo`, `alerta_regra`, `anomalia_ia`, `anomalia_score`).
+- **Banco Não Relacional (`ir_alem_2/db/mongo_schema.md`):** MongoDB documentado com 3 coleções:
+  - `logs_execucao`: Rastreabilidade do ciclo do robô (início, fim, leituras avaliadas, status, erros).
+  - `mensagens_pacientes`: Mensagens livres de pacientes em linguagem natural com sinalização de termos.
+  - `alertas`: Eventos normalizados de alerta com chave de rastreio (`execucao_id` + `paciente_id`), motivo e snapshot dos dados clínicos no momento da detecção.
+- **Setup e Dados Simulados (`ir_alem_2/src/gerar_dados_simulados.py`, `ir_alem_2/db/mongo_setup.py`):** Scripts para povoamento do banco relacional com dados sintéticos e configuração idempotente das coleções/índices no Mongo.
+- **Notebook de Análise (`ir_alem_2/notebooks/analise_resultados.ipynb`):** Análise exploratória e visualização dos alertas e fronteiras do modelo.
+- **Relatório Técnico (`ir_alem_2/relatorio_tecnico_ir_alem_2.pdf`):** Relatório detalhado (5 páginas) cobrindo decisões de arquitetura, governança, modelos estatísticos e rastreabilidade.
+
+### Abordagem Técnica e Técnicas de IA
+1. **Regras Fixas de Limiar Clínico (Baseline Determinístico):** Identificação imediata de valores críticos extremos (ex.: pressão sistólica ≥ 180 ou ≤ 90 mmHg, FC ≥ 120 ou ≤ 40 bpm, adesão ≤ 50%), garantindo respostas instantâneas para casos evidentes.
+2. **Detecção de Anomalias Multivariadas (Isolation Forest):** Modelo de Machine Learning não supervisionado (`scikit-learn`, `contamination=0.08`) treinado sobre o histórico de dados vitais para identificar combinações atípicas sutis que não violam nenhum limiar fixo isoladamente.
+3. **Casamento de Padrões em Mensagens de Texto:** Varredura ágil de mensagens de texto livre de pacientes contra termos de alerta cardiológico herdados do assistente.
+4. **Governança e Rastreabilidade:** Cada ciclo recebe um `execucao_id` único (UUIDv4) compartilhado entre o SQLite e o MongoDB, permitindo reconstruir com precisão a cadeia causal de cada alerta gerado.
 
 ---
 
@@ -102,19 +123,32 @@ A pasta [`ir_alem_1_extracao_clinica/`](file:///c:/Users/vitor/OneDrive/Document
 ├── frontend/
 │   ├── app/
 │   │   ├── _layout.tsx               # Layout raiz (navegação Expo Router)
-│   │   └── index.tsx                 # Tela principal da interface do chat
+│   │   └── index.tsx                 # Tela principal da interface do chat (React Native)
 │   ├── app.json                      # Configurações do app Expo
 │   └── package.json                  # Dependências do frontend
 ├── docs/
 │   └── relatorio_parte1.txt          # Relatório técnico completo da Parte 1
-├── ir_alem_1_extracao_clinica/
-│   ├── ir_alem_1.pdf                 # Enunciado da atividade Ir Além 1
+├── ir_alem_1/
+│   ├── ir_alem_1.pdf                 # Relatório técnico com Chain of Thought e validação Pydantic
 │   └── ir_alem_1_extracao_clinica.ipynb # Notebook com extração via CoT e LLM local (Ollama)
+├── ir_alem_2/
+│   ├── db/
+│   │   ├── schema_sqlite.sql         # DDL do banco relacional (SQLite)
+│   │   ├── mongo_schema.md           # Documentação das coleções do MongoDB
+│   │   └── mongo_setup.py            # Setup idempotente de coleções e índices Mongo
+│   ├── src/
+│   │   ├── config.py                 # Configurações, conexões e limiares clínicos
+│   │   ├── gerar_dados_simulados.py  # Popula pacientes, histórico e mensagens
+│   │   └── robo_monitoramento.py     # Script principal do robô RPA (periódico ou pontual)
+│   ├── notebooks/
+│   │   └── analise_resultados.ipynb  # Visualização dos resultados e dispersões
+│   ├── relatorio_tecnico_ir_alem_2.pdf # Relatório técnico completo do Ir Além 2
+│   └── README.md                     # Guia específico do módulo Ir Além 2
 ├── watson/
 │   └── Assistente-Cardiológico-Conversacional-action.json # Exportação oficial da Action do Watson
 ├── .env.example                      # Modelo das variáveis de ambiente necessárias
 ├── .gitignore                        # Regras de exclusão de arquivos temporários/segredos
-├── requirements.txt                  # Dependências do backend (Flask, ibm-watson, etc.)
+├── requirements.txt                  # Dependências consolidadas (Backend, Ir Além 1 e Ir Além 2)
 └── README.md                         # Documentação principal do repositório
 ```
 
@@ -133,27 +167,37 @@ A API Flask fornece os seguintes recursos na rota `/api`:
 
 ---
 
+## Demonstração em Vídeo (Parte 2)
+
+> 📹 **Link do Vídeo de Demonstração:** [Adicione aqui o link do vídeo do YouTube / Drive / Vimeo]
+>
+> Demonstração prática (até 3 minutos) evidenciando a inicialização da sessão, envio de mensagens em linguagem natural, apresentação das opções pelo assistente cardiológico e o acionamento do protocolo visual de emergência ao relatar sintomas críticos.
+
+---
+
 ## Como Executar
 
-### 1. Pré-requisitos
+### 1. Pré-requisitos Gerais
 - **Python 3.10+** instalado.
+- **Node.js 18+** e npm (para o frontend mobile).
 - Instância ativa do **IBM watsonx Assistant** na IBM Cloud com a Action importada (`watson/Assistente-Cardiológico-Conversacional-action.json`).
+- *(Para Ir Além 1)*: **Ollama** com o modelo `llama3.1:8b` (`ollama run llama3.1:8b`).
+- *(Para Ir Além 2)*: Instância local do **MongoDB** ativa (`mongodb://localhost:27017`).
 
 ### 2. Clonar o Repositório
 ```bash
 git clone https://github.com/Vitor985-hub/Fase-5-Cap-1-Assistente-Cardiologico-Inteligente-Experiencia-do-Paciente.git
 cd Fase-5-Cap-1-Assistente-Cardiologico-Inteligente-Experiencia-do-Paciente
 ```
-### 3. watsonx Assistant (NLU)
- 1. Crie uma instância do watsonx Assistant no plano Lite, pelo catálogo do IBM Cloud.
- 2. Dentro do Assistant criado, vá em Global Settings (ícone de engrenagem) → aba Upload/Download → Upload e importe o arquivo .json que está na pasta watson/ deste repositório. Isso recria a action "Relatar sintoma" com todos os steps, condições e variáveis já configurados.
- 3. Abra a action importada e clique em Preview para confirmar que o fluxo está funcionando (teste com "estou sentindo dor no peito" e com algo não-crítico, como "sinto cansaço").
- 4. Pegue as credenciais necessárias para o backend, na aba Environments → ambiente Draft → API details:
-    - Service URL
-    - Environment ID (usado como WATSON_ASSISTANT_ID no backend — é o ID do ambiente, não o nome do assistant)
-    - API key, em Service credentials, na página da instância no IBM Cloud (fora do builder do Assistant)
 
-### 4. Configurar Ambiente Virtual
+### 3. Configurar watsonx Assistant
+1. Crie uma instância do watsonx Assistant no plano Lite pelo catálogo da IBM Cloud.
+2. Em **Global Settings** (engrenagem) → **Upload/Download** → **Upload**, importe o arquivo `watson/Assistente-Cardiológico-Conversacional-action.json`.
+3. Abra a Action importada e teste o preview ("dor no peito" e sintomas leves).
+4. Obtenha as credenciais em **Environments** → **Draft** → **API details** (URL, Environment ID) e em **Service credentials** (API key).
+
+### 4. Configurar Ambiente Virtual e Instalar Dependências (Global)
+O arquivo `requirements.txt` na raiz já reúne todas as dependências do projeto (Backend, Ir Além 1 e Ir Além 2):
 ```bash
 # Criação do venv
 python -m venv venv
@@ -163,15 +207,13 @@ python -m venv venv
 
 # Ativação (Linux / macOS)
 source venv/bin/activate
-```
 
-### 5. Instalar Dependências
-```bash
+# Instalação de todas as dependências em comando único
 pip install -r requirements.txt
 ```
 
-### 6. Configurar Variáveis de Ambiente (`.env`)
-Crie um arquivo `.env` na raiz do projeto baseado no `.env.exemple`:
+### 5. Configurar Variáveis de Ambiente (`.env`)
+Crie um arquivo `.env` na raiz do projeto baseado no `.env.example`:
 ```ini
 WATSON_ASSISTANT_API_KEY=sua_api_key_aqui
 WATSON_ASSISTANT_URL=https://api.us-south.assistant.watson.cloud.ibm.com/instances/sua_instancia
@@ -182,26 +224,54 @@ FLASK_PORT=5000
 FLASK_DEBUG=True
 ```
 
-### 7. Executar o Backend
+### 6. Executar o Backend Flask
 ```bash
 cd backend
 python run.py
 ```
 O servidor estará acessível em `http://localhost:5000`.
 
-### 8. Executar o App Mobile
-
+### 7. Executar a Interface do Chatbot (React Native)
 ```bash
 cd frontend
 npm install
 npx expo start
 ```
-Escaneie o QR code com o app **Expo Go** (Android/iOS). Importante: no arquivo `frontend/app/index.tsx`, a constante `API_BASE_URL` precisa apontar para o IP local do seu computador (ex: `http://192.168.0.10:5000`), não `localhost` — o celular é outro dispositivo na rede.
+- Para testar no celular físico: escaneie o QR Code com o aplicativo **Expo Go**. Lembre-se de configurar a constante `API_BASE_URL` no arquivo `frontend/app/index.tsx` com o IP local da sua máquina (ex.: `http://192.168.0.15:5000`).
+- Para testar no navegador web: pressione a tecla `w` no terminal do Expo.
+
+### 8. Executar o Módulo Ir Além 1 (Extração com CoT e LLM)
+```bash
+# Certifique-se de que o Ollama está em execução e o modelo baixado
+ollama pull llama3.1:8b
+
+# Iniciar o Jupyter Notebook
+cd ir_alem_1
+jupyter notebook ir_alem_1_extracao_clinica.ipynb
+```
+
+### 9. Executar o Módulo Ir Além 2 (Robô de Monitoramento RPA)
+```bash
+cd ir_alem_2
+
+# 1. Gerar os dados simulados (cria db/clinica.db e mensagens no MongoDB)
+python src/gerar_dados_simulados.py
+
+# 2. Executar um ciclo único do robô (demonstração pontual)
+python src/robo_monitoramento.py --once
+
+# 3. Ou executar em modo contínuo (automação periódica a cada 60s)
+python src/robo_monitoramento.py --intervalo 60
+```
 
 ---
 
-## Relatório Técnico
-O relatório técnico detalhado da Parte 1, descrevendo a arquitetura em 3 camadas, modelagem de NLP, lógica de bifurcação de emergência e tratamento de exceções encontra-se disponível em [`docs/relatorio_parte1.txt`](file:///c:/Users/vitor/OneDrive/Documentos/GitHub/Fase-5-Cap-1-Assistente-Cardiologico-Inteligente-Experiencia-do-Paciente/docs/relatorio_parte1.txt).
+## Relatórios Técnicos
+
+Todos os relatórios detalhados com metodologia, fundamentação teórica e discussão de resultados estão organizados nos seguintes arquivos:
+- **Parte 1 (Assistente & NLP):** [`docs/relatorio_parte1.txt`](docs/relatorio_parte1.txt)
+- **Ir Além 1 (IA Generativa & Chain of Thought):** [`ir_alem_1/ir_alem_1.pdf`](ir_alem_1/ir_alem_1.pdf)
+- **Ir Além 2 (Automação RPA & Dados Híbridos):** [`ir_alem_2/relatorio_tecnico_ir_alem_2.pdf`](ir_alem_2/relatorio_tecnico_ir_alem_2.pdf)
 
 ---
 
