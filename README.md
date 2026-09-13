@@ -169,7 +169,7 @@ A API Flask fornece os seguintes recursos na rota `/api`:
 
 ## Demonstração em Vídeo (Parte 2)
 
-> 📹 **Link do Vídeo de Demonstração:** [Adicione aqui o link do vídeo do YouTube / Drive / Vimeo]
+> > 📹 **Link do Vídeo de Demonstração:** [Assista aqui](https://youtu.be/k83XyMOUCdw)
 >
 > Demonstração prática (até 3 minutos) evidenciando a inicialização da sessão, envio de mensagens em linguagem natural, apresentação das opções pelo assistente cardiológico e o acionamento do protocolo visual de emergência ao relatar sintomas críticos.
 
